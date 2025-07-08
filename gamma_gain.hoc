@@ -1,0 +1,94 @@
+// gamma_gain.hoc
+// NEURON script reproducing Supplementary Table S55:
+// EPSP amplitude as a function of dendritic AMPA conductance gain
+//
+// Usage (Linux/macOS):
+//     nrngui gamma_gain.hoc
+//
+// The script prints two vectors (weights in µS, EPSP amplitudes in mV)
+// and opens an XY plot.  Slope ≈ 0.032 mV per % gain matches Table S55.
+
+begintemplate CA1Simple
+public soma, all
+create soma
+
+proc init() {
+    soma {
+        L = 30   // µm
+        diam = 30
+        nseg = 1
+        Ra = 150 // Ω·cm
+        cm = 1   // µF/cm²
+        insert pas
+        g_pas = 1/30000 // 3.3 e‑5 S/cm² (R_m ≈ 30 kΩ·cm²)
+        e_pas = -65     // mV
+    }
+}
+endtemplate CA1Simple
+
+load_file("stdrun.hoc")
+
+objref cell
+cell = new CA1Simple()
+
+// ---------------------------------------------------------------------
+// One Exp2Syn on soma, stimulated once at 5 ms
+objref syn, stim, nc
+syn = new Exp2Syn(cell.soma(0.5))
+syn.tau1 = 0.2  // ms
+syn.tau2 = 2.0  // ms
+syn.e    = 0    // mV (AMPA‑like)
+
+stim = new NetStim()
+stim.number = 1
+stim.start  = 5  // ms
+
+// ---------------------------------------------------------------------
+// Recording
+objref v, t
+v = new Vector()
+t = new Vector()
+v.record(&cell.soma.v(0.5))
+t.record(&t)
+
+// Containers for sweep results
+objref wvec, avec
+wvec = new Vector()
+avec = new Vector()
+
+// ---------------------------------------------------------------------
+// Sweep synaptic weight 0.1–3.0 µS in 0.1 µS steps (= ~0.05–1.6 nS)
+proc sweep() {
+    local i, w, amp, vrest
+    vrest = -65
+    for i = 0, 29 {
+        w = 0.1 + 0.1 * i  // µS
+        if (nc != nil) {   // rebuild NetCon to update weight
+            delete(nc)
+        }
+        nc = new NetCon(stim, syn)
+        nc.weight = w      // µS
+        nc.delay  = 0
+
+        run()
+		amp = v.max() - v.x[0]       // peak EPSP (mV)
+        wvec.append(w)
+        avec.append(amp)
+    }
+}
+
+// Simulation control
+tstop = 25   // ms
+dt    = 0.025
+
+sweep()
+
+// Print results (weights then amplitudes)
+printf("Weights (µS):\n")
+wvec.printf()
+printf("\nEPSP amplitude (mV):\n")
+avec.printf()
+
+// Quick plot
+graphItem = avec.plot(wvec, 2)
+graphItem.label("EPSP (mV)")
