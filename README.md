@@ -2,8 +2,8 @@
 
 **Narrowing of the vCA1 excitability margin – stress, magnetite, CREB-high hot-spots and Schumann resonance as a common mechanism in SZ / MDD / PTSD**
 
-[![License: CC-BY-4.0](https://img.shields.io/badge/License-CC--BY--4.0-lightgrey.svg)](LICENSE)  
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.XXXXXXX.svg)](https://doi.org/10.5281/zenodo.XXXXXXX)
+[![License: CC-BY-4.0](https://img.shields.io/badge/License.md.svg)](LICENSE.md)  
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15837800.svg)](https://doi.org/10.5281/zenodo.15837800)
 
 This repository provides the **minimal code and data needed to reproduce the calibration**  
 “γ-burst ↓  ⇒  EPSP ↑ ≈ 0.032 mV per %” (Supplementary Table S55 in the manuscript).
